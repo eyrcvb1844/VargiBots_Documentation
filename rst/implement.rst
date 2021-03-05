@@ -33,8 +33,12 @@ After the ROS-IoT Bridge receives goals, it searches the order having the order 
 
 The Dashboard gets data from the other sheets using google sheet functions. Emails are sent whenever the package is dispatched or shipped using google apps script taking data from the Dashboard. 
 
+*Google spreadsheet link*:
+https://docs.google.com/spreadsheets/d/1xLWA5cSzPCifhPsfZ_zSdPj_PTIcN5w4fCODogjbhng/edit?usp=sharing
 
 
+*Dynamic Dashboard Link*:
+https://eyrcvb1844.github.io/VB-1844_Warehouse_Dashboard/
 
 ..  figure:: rqt.png
     :align: center
