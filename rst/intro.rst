@@ -13,6 +13,9 @@ The ur5#2 picks the box from the conveyor as the conveyor stops when the box rea
 
 All these information are published comprehensively on Google Sheets, this data is used to auto send users email alerts using Google Apps Script. Dashboard sheet, and the same is used for presenting all relevant details on the Dashboard Website. 
 
+Team Members:
+Aniruddha Mandal, Anish Konar, Chirantan Ganguly, Sagnik Nayak from University of Calcutta
+
 Video
 -----
 
