@@ -1,0 +1,514 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>ur5_action_client &mdash; Vargi Bots 1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Vargi Bots
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rst/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rst/implement.html">Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rst/modules.html">pkg_ros_iot_bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rst/modules.html#pkg-task5">pkg_task5</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Vargi Bots</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>ur5_action_client</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for ur5_action_client</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="kn">from</span> <span class="nn">pickle</span> <span class="kn">import</span> <span class="n">EMPTY_LIST</span>
+<span class="kn">import</span> <span class="nn">rospy</span>
+<span class="kn">import</span> <span class="nn">actionlib</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">from</span> <span class="nn">pkg_ros_iot_bridge.msg</span> <span class="kn">import</span> <span class="n">msgMqttSub</span>
+<span class="kn">from</span> <span class="nn">pkg_ros_iot_bridge.msg</span> <span class="kn">import</span> <span class="n">msgRosIotAction</span>
+<span class="kn">from</span> <span class="nn">pkg_ros_iot_bridge.msg</span> <span class="kn">import</span> <span class="n">msgRosIotGoal</span>
+<span class="kn">from</span> <span class="nn">pkg_ros_iot_bridge.msg</span> <span class="kn">import</span> <span class="n">msgRosIotResult</span>
+<span class="kn">from</span> <span class="nn">pyzbar.pyzbar</span> <span class="kn">import</span> <span class="n">decode</span>
+<span class="kn">from</span> <span class="nn">std_msgs.msg</span> <span class="kn">import</span> <span class="n">String</span>
+<span class="kn">from</span> <span class="nn">sensor_msgs.msg</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span> <span class="nn">importlib</span> <span class="kn">import</span> <span class="n">import_module</span>
+<span class="kn">from</span> <span class="nn">cv_bridge</span> <span class="kn">import</span> <span class="n">CvBridge</span><span class="p">,</span> <span class="n">CvBridgeError</span>
+
+
+<div class="viewcode-block" id="RosIotBridgeActionClient"><a class="viewcode-back" href="../rst/ur5_action_client.html#ur5_action_client.RosIotBridgeActionClient">[docs]</a><span class="k">class</span> <span class="nc">RosIotBridgeActionClient</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        This class takes the orders through the ros-iot bridge from the order node from </span>
+<span class="sd">        &#39;/ros_iot_bridge/mqtt/sub&#39;.</span>
+<span class="sd">        It manages the inventory by processing the image it gets from the 2D camera through </span>
+<span class="sd">        rostopic &quot;/eyrc/vb/camera_1/image_raw&quot;.</span>
+<span class="sd">        It also sends orders to the ur5#1 arm on which box to dispatch through &#39;/arm_commander&#39;.</span>
+<span class="sd">        If a certain order is not present in inventory, that case is also handled here.</span>
+
+<span class="sd">        This receives the processing orders if a specific order is dispatched, shipped or is</span>
+<span class="sd">        found in the inventory through rostopic &#39;/order_status&#39; and sends goals to the action server </span>
+<span class="sd">        to publish the information on their respective sheet on Google Sheets.</span>
+
+<span class="sd">        </span>
+<span class="sd">        :param _acIot: Action Client object.</span>
+<span class="sd">        :param _goal_handles: Takes care of the goal.</span>
+<span class="sd">        :param bridge: OpenCV object. Used for image processing.</span>
+<span class="sd">        :param pub_empty: Publisher handle to publish to rostopic &quot;/order_status&quot;.</span>
+<span class="sd">        :param pub_arm: Publisher handle to publish to rostopic &#39;/arm_commander&#39;</span>
+<span class="sd">        :param check: Boolean flag variable to control refreshing of inventory.</span>
+<span class="sd">        :param boxes: Contains the colors of the boxes present in the shelf in order as present in the shelf.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="c1"># Constructor</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">            The constructor for RosIotBridgeActionClient.</span>
+<span class="sd">            It initialises all the class variables.</span>
+<span class="sd">            Subscribes and publishes to necessary topics, namely</span>
+<span class="sd">            &#39;/action_ros_iot&#39;</span>
+<span class="sd">            &#39;/ros_iot_bridge/mqtt/sub&#39;</span>
+<span class="sd">            &quot;/eyrc/vb/camera_1/image_raw&quot;</span>
+<span class="sd">            &quot;/order_status&quot;</span>
+<span class="sd">            &#39;/arm_commander&#39;</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">init_node</span><span class="p">(</span><span class="s1">&#39;ur5_action_client&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_acIot</span> <span class="o">=</span> <span class="n">actionlib</span><span class="o">.</span><span class="n">ActionClient</span><span class="p">(</span><span class="s1">&#39;/action_ros_iot&#39;</span><span class="p">,</span>
+                                             <span class="n">msgRosIotAction</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_goal_handles</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bridge</span> <span class="o">=</span> <span class="n">CvBridge</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">boxes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">Subscriber</span><span class="p">(</span><span class="s1">&#39;/ros_iot_bridge/mqtt/sub&#39;</span><span class="p">,</span>
+                         <span class="n">msgMqttSub</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mqttsub_callback</span><span class="p">)</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">Subscriber</span><span class="p">(</span><span class="s2">&quot;/eyrc/vb/camera_1/image_raw&quot;</span><span class="p">,</span>
+                         <span class="n">Image</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cam_callback</span><span class="p">)</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">Subscriber</span><span class="p">(</span><span class="s2">&quot;/order_status&quot;</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">status_call</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pub_empty</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Publisher</span><span class="p">(</span>
+            <span class="s2">&quot;/order_status&quot;</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">queue_size</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pub_arm</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Publisher</span><span class="p">(</span><span class="s1">&#39;/arm_commander&#39;</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">queue_size</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_acIot</span><span class="o">.</span><span class="n">wait_for_server</span><span class="p">()</span>
+
+<div class="viewcode-block" id="RosIotBridgeActionClient.on_transition"><a class="viewcode-back" href="../rst/ur5_action_client.html#ur5_action_client.RosIotBridgeActionClient.on_transition">[docs]</a>    <span class="k">def</span> <span class="nf">on_transition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">goal_handle</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">            Starts when there is a change in Goal State.</span>
+
+<span class="sd">            :param goal_handle: Goals that are added to be done.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># from on_goal() to on_transition(). goal_handle generated by send_goal() is used here.</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">msgRosIotResult</span><span class="p">()</span>
+
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_goal_handles</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_goal_handles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">goal_handle</span><span class="p">:</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="n">i</span>
+                <span class="k">break</span>
+
+        <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span>
+            <span class="s2">&quot;Transition Callback. Client Goal Handle #: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span><span class="s2">&quot;Comm. State: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">goal_handle</span><span class="o">.</span><span class="n">get_comm_state</span><span class="p">()))</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span><span class="s2">&quot;Goal Status: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">goal_handle</span><span class="o">.</span><span class="n">get_goal_status</span><span class="p">()))</span>
+
+        <span class="c1"># Comm State - Monitors the State Machine of the Client which is different from Server&#39;s</span>
+        <span class="c1"># Comm State = 2 -&gt; Active</span>
+        <span class="c1"># Comm State = 3 -&gt; Wating for Result</span>
+        <span class="c1"># Comm State = 7 -&gt; Done</span>
+
+        <span class="c1"># if (Comm State == ACTIVE)</span>
+        <span class="k">if</span> <span class="n">goal_handle</span><span class="o">.</span><span class="n">get_comm_state</span><span class="p">()</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;: Goal just went active.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># if (Comm State == DONE)</span>
+        <span class="k">if</span> <span class="n">goal_handle</span><span class="o">.</span><span class="n">get_comm_state</span><span class="p">()</span> <span class="o">==</span> <span class="mi">7</span><span class="p">:</span>
+            <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;: Goal is DONE&quot;</span><span class="p">)</span>
+            <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span><span class="n">goal_handle</span><span class="o">.</span><span class="n">get_terminal_state</span><span class="p">())</span>
+
+            <span class="c1"># get_result() gets the result produced by the Action Server</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">goal_handle</span><span class="o">.</span><span class="n">get_result</span><span class="p">()</span>
+            <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">flag_success</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">flag_success</span> <span class="o">==</span> <span class="kc">True</span><span class="p">):</span>
+                <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span>
+                    <span class="s2">&quot;Goal successfully completed. Client Goal Handle #: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span>
+                    <span class="s2">&quot;Goal failed. Client Goal Handle #: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="RosIotBridgeActionClient.send_goal"><a class="viewcode-back" href="../rst/ur5_action_client.html#ur5_action_client.RosIotBridgeActionClient.send_goal">[docs]</a>    <span class="k">def</span> <span class="nf">send_goal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg_protocol</span><span class="p">,</span> <span class="n">arg_mode</span><span class="p">,</span> <span class="n">arg_topic</span><span class="p">,</span> <span class="n">arg_message</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        This function is used to send Goals to Action Server</span>
+
+<span class="sd">        :param arg_protocol: Protocol type by which the goal is done.</span>
+<span class="sd">        :param arg_mode: Mode of operation to be carried out.</span>
+<span class="sd">        :param arg_topic: Topic on which the goal is published.</span>
+<span class="sd">        :param arg_message: Contains the message to be processed.</span>
+
+<span class="sd">        :return: goal_handle</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># Create a Goal Message object</span>
+        <span class="n">goal</span> <span class="o">=</span> <span class="n">msgRosIotGoal</span><span class="p">()</span>
+
+        <span class="n">goal</span><span class="o">.</span><span class="n">protocol</span> <span class="o">=</span> <span class="n">arg_protocol</span>
+        <span class="n">goal</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">arg_mode</span>
+        <span class="n">goal</span><span class="o">.</span><span class="n">topic</span> <span class="o">=</span> <span class="n">arg_topic</span>
+        <span class="n">goal</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">arg_message</span>
+
+        <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span><span class="s2">&quot;Send goal.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># self.on_transition - It is a function pointer to a function which will be called when</span>
+        <span class="c1">#                       there is a change of state in the Action Client State Machine</span>
+        <span class="n">goal_handle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_acIot</span><span class="o">.</span><span class="n">send_goal</span><span class="p">(</span><span class="n">goal</span><span class="p">,</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">on_transition</span><span class="p">,</span>
+                                            <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">goal_handle</span></div>
+
+<div class="viewcode-block" id="RosIotBridgeActionClient.status_call"><a class="viewcode-back" href="../rst/ur5_action_client.html#ur5_action_client.RosIotBridgeActionClient.status_call">[docs]</a>    <span class="k">def</span> <span class="nf">status_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feed</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Processes the order status of the orders.</span>
+
+<span class="sd">        This receives the status of orders from the rostopic &#39;order_status&#39; and sends it</span>
+<span class="sd">        to the Action Server as a goal. </span>
+<span class="sd">        Types of goals received: \n</span>
+<span class="sd">        dispatched: An order of a specific order id has been dispatched.\n</span>
+<span class="sd">        shipped: An order of a specific order id has been shipped.\n</span>
+<span class="sd">        failed: An order of a specific order id has not been found in the inventory.</span>
+
+<span class="sd">        :param feed: This contains the message in form &#39;&lt; order_id &gt;;&lt; goal &gt;&#39;</span>
+<span class="sd">        :type feed: string</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">feed</span> <span class="o">=</span> <span class="n">feed</span><span class="o">.</span><span class="n">data</span>
+        <span class="k">if</span><span class="p">(</span><span class="s1">&#39;dispatched&#39;</span> <span class="ow">in</span> <span class="n">feed</span><span class="p">):</span>
+            <span class="n">order_id</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">feed</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">send_goal</span><span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">,</span> <span class="s2">&quot;disp&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">order_id</span><span class="p">)</span>
+        <span class="k">elif</span><span class="p">(</span><span class="s1">&#39;shipped&#39;</span> <span class="ow">in</span> <span class="n">feed</span><span class="p">):</span>
+            <span class="n">order_id</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">feed</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">send_goal</span><span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">,</span> <span class="s2">&quot;ship&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">order_id</span><span class="p">)</span>
+        <span class="k">elif</span><span class="p">(</span><span class="s1">&#39;failed&#39;</span> <span class="ow">in</span> <span class="n">feed</span><span class="p">):</span>
+            <span class="n">order_id</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">feed</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">send_goal</span><span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">,</span> <span class="s2">&quot;fail&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">order_id</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RosIotBridgeActionClient.mqttsub_callback"><a class="viewcode-back" href="../rst/ur5_action_client.html#ur5_action_client.RosIotBridgeActionClient.mqttsub_callback">[docs]</a>    <span class="k">def</span> <span class="nf">mqttsub_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Processes orders sent in by the Action Server.</span>
+
+<span class="sd">        This receives the orders, checks the inventory for the availability and publishes information to rostopic </span>
+<span class="sd">        &#39;/arm_commander&#39; in form &quot;&lt; color_of_box &gt;;&lt; x-coordinate on shelf &gt;;&lt; y-coordinate on shelf &gt;;&lt; order id &gt;&quot;</span>
+<span class="sd">        if the order is available in the inventory, or else publishes &quot;&lt; order id &gt;;failed&quot; to rostopic &quot;/order_status&quot;.</span>
+
+<span class="sd">        It also manages the presence of boxes on the shelf as the orders are processed.</span>
+
+<span class="sd">        :param message: Contains the order in form of a dictionary as a string, which contains all relevant information regarding the order.</span>
+<span class="sd">        :type message: string</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">order</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">order_code</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Medicine&quot;</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="s2">&quot;Food&quot;</span><span class="p">:</span> <span class="s2">&quot;yellow&quot;</span><span class="p">,</span> <span class="s2">&quot;Clothes&quot;</span><span class="p">:</span> <span class="s2">&quot;green&quot;</span><span class="p">}</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">order_code</span><span class="p">[</span><span class="n">order</span><span class="p">[</span><span class="s2">&quot;item&quot;</span><span class="p">]]</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">boxes</span><span class="p">):</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">boxes</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+            <span class="n">string</span> <span class="o">=</span> <span class="n">val</span><span class="o">+</span><span class="s2">&quot;;&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">ind</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;;&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">ind</span> <span class="o">%</span> <span class="mi">3</span><span class="p">)</span> <span class="o">+</span> \
+                <span class="s2">&quot;;&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">order</span><span class="p">[</span><span class="s2">&quot;order_id&quot;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">boxes</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;NA&#39;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pub_arm</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pub_empty</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">order</span><span class="p">[</span><span class="s2">&quot;order_id&quot;</span><span class="p">])</span><span class="o">+</span><span class="s2">&quot;;&quot;</span><span class="o">+</span><span class="s1">&#39;failed&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n\n</span><span class="s2">INVENTORY EMPTY </span><span class="se">\n\n\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RosIotBridgeActionClient.get_qr_data"><a class="viewcode-back" href="../rst/ur5_action_client.html#ur5_action_client.RosIotBridgeActionClient.get_qr_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_qr_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg_image</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Decodes of the QR code present in the image.</span>
+
+<span class="sd">        Receives the image and decodes the QR present in it.</span>
+<span class="sd">        Uses decode function from pyzbar to decode the QR code.</span>
+
+<span class="sd">        :param arg_image: A 2D Image array in which the QR code is decoded.</span>
+<span class="sd">        :type arg_image: Image</span>
+
+<span class="sd">        :return: Returns the decoded data if QR code can be decoded or is present at all. Returns &#39;NA&#39; otherwise.</span>
+<span class="sd">        :type: string</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">qr_result</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">arg_image</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">qr_result</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">qr_result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;NA&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RosIotBridgeActionClient.cam_callback"><a class="viewcode-back" href="../rst/ur5_action_client.html#ur5_action_client.RosIotBridgeActionClient.cam_callback">[docs]</a>    <span class="k">def</span> <span class="nf">cam_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Callback function that receives the image taken by 2D camera.</span>
+<span class="sd">        It also is responsible for the decoding of QR code and making of the inventory.</span>
+
+<span class="sd">        :param data: A message conveying the image.</span>
+<span class="sd">        :type data: sensor_msgs::Image</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cv_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bridge</span><span class="o">.</span><span class="n">imgmsg_to_cv2</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;bgr8&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">CvBridgeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">rospy</span><span class="o">.</span><span class="n">logerr</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+
+        <span class="n">image</span> <span class="o">=</span> <span class="n">cv_image</span>
+
+        <span class="n">resized_image</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">(</span><span class="mi">720</span><span class="p">,</span> <span class="mi">1280</span><span class="p">))</span>
+        <span class="n">cropped</span> <span class="o">=</span> <span class="n">resized_image</span><span class="p">[</span><span class="mi">310</span><span class="p">:</span><span class="o">-</span><span class="mi">380</span><span class="p">,</span> <span class="mi">110</span><span class="p">:</span><span class="o">-</span><span class="mi">110</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">qr_codes</span><span class="p">(</span><span class="n">cropped</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inventory</span><span class="p">()</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RosIotBridgeActionClient.qr_codes"><a class="viewcode-back" href="../rst/ur5_action_client.html#ur5_action_client.RosIotBridgeActionClient.qr_codes">[docs]</a>    <span class="k">def</span> <span class="nf">qr_codes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Takes an image, slices it to get the QR code of the boxes.</span>
+<span class="sd">        Tuned to get accurate results for the current setup.</span>
+
+<span class="sd">        :param image: Message containing an image of the shelf with or without the boxes.</span>
+<span class="sd">        :type image: sensor_msgs::Image message</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">temp</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">while</span><span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="mi">590</span> <span class="ow">and</span> <span class="n">s</span> <span class="o">&lt;</span> <span class="mi">12</span><span class="p">):</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">while</span><span class="p">(</span><span class="n">j</span> <span class="o">&lt;</span> <span class="mi">500</span><span class="p">):</span>
+                <span class="n">box</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="nb">int</span><span class="p">(</span><span class="mi">590</span><span class="o">/</span><span class="mi">4</span><span class="p">),</span> <span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="nb">int</span><span class="p">(</span><span class="mi">500</span><span class="o">/</span><span class="mi">3</span><span class="p">),</span> <span class="p">:]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="n">temp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_qr_data</span><span class="p">(</span><span class="n">box</span><span class="p">))</span>
+                    <span class="n">s</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">j</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">500</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span>
+                <span class="n">c</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">590</span><span class="o">/</span><span class="mi">4</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">boxes</span> <span class="o">=</span> <span class="n">temp</span></div>
+
+<div class="viewcode-block" id="RosIotBridgeActionClient.inventory"><a class="viewcode-back" href="../rst/ur5_action_client.html#ur5_action_client.RosIotBridgeActionClient.inventory">[docs]</a>    <span class="k">def</span> <span class="nf">inventory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Creates the inventory and logs the inventory data as a Goal.</span>
+
+<span class="sd">        It creates the inventory from the decoded QR codes, uses relevant information to create the SKU, adds necessary </span>
+<span class="sd">        information that needs to be logged on the Google Sheet &#39;Inventory&#39; and sends it as a goal to the Action Server.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">cn</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%m&quot;</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%y&quot;</span><span class="p">)</span>
+        <span class="n">encode</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;red&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="s2">&quot;Medicine&quot;</span><span class="p">,</span> <span class="s2">&quot;HP&quot;</span><span class="p">,</span> <span class="s2">&quot;450&quot;</span><span class="p">],</span> <span class="s2">&quot;yellow&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;Y&quot;</span><span class="p">,</span> <span class="s2">&quot;Food&quot;</span><span class="p">,</span> <span class="s2">&quot;MP&quot;</span><span class="p">,</span> <span class="s2">&quot;250&quot;</span><span class="p">],</span> <span class="s2">&quot;green&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;G&quot;</span><span class="p">,</span> <span class="s2">&quot;Clothes&quot;</span><span class="p">,</span> <span class="s2">&quot;LP&quot;</span><span class="p">,</span> <span class="s2">&quot;150&quot;</span><span class="p">]}</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">boxes</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cn</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">cn</span> <span class="o">%</span> <span class="mi">3</span>
+            <span class="n">inv_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;Inventory&quot;</span><span class="p">,</span> <span class="s2">&quot;Team Id&quot;</span><span class="p">:</span> <span class="s2">&quot;VB#1844&quot;</span><span class="p">,</span> <span class="s2">&quot;Unique Id&quot;</span><span class="p">:</span> <span class="s2">&quot;axaKcGsN&quot;</span><span class="p">,</span> <span class="s2">&quot;SKU&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{}{}{}{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">encode</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="s2">&quot;Item&quot;</span><span class="p">:</span> <span class="n">encode</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>	<span class="s2">&quot;Priority&quot;</span><span class="p">:</span> <span class="n">encode</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">],</span> <span class="s2">&quot;Storage Number&quot;</span><span class="p">:</span> <span class="s2">&quot;R</span><span class="si">{}</span><span class="s2"> C</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">),</span>
+                        <span class="s2">&quot;Cost&quot;</span><span class="p">:</span> <span class="n">encode</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">3</span><span class="p">],</span> <span class="s2">&quot;Quantity&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">}</span>
+            <span class="n">string</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">inv_dict</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;;&quot;</span><span class="o">+</span><span class="n">string</span>
+            <span class="n">cn</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="n">string</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send_goal</span><span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">,</span> <span class="s2">&quot;inv&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../rst/ur5_action_client.html#ur5_action_client.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Creates RosIotBridgeActionClient instance and keeps the node running.</span>
+<span class="sd">    Also, turns on the flag &#39;check&#39; when image from 2D camera needs to be processed.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">manager</span> <span class="o">=</span> <span class="n">RosIotBridgeActionClient</span><span class="p">()</span>
+    <span class="n">rospy</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">5.5</span><span class="p">)</span>
+    <span class="n">manager</span><span class="o">.</span><span class="n">check</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">rospy</span><span class="o">.</span><span class="n">spin</span><span class="p">()</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, vb_1844.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

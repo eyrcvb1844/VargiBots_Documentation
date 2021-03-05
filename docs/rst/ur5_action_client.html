@@ -1,0 +1,398 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>ur5_action_client.py &mdash; Vargi Bots 1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Config Files" href="t5config.html" />
+    <link rel="prev" title="ur5_2_controller.py" href="ur5_2_controller.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Vargi Bots
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implement.html">Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">pkg_ros_iot_bridge</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html#pkg-task5">pkg_task5</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="t5scripts.html">scripts</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="convey.html">convey.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ur5_1_controller.html">ur5_1_controller.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ur5_2_controller.html">ur5_2_controller.py</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">ur5_action_client.py</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="t5config.html">Config Files</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Vargi Bots</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="modules.html">pkg_ros_iot_bridge</a> &raquo;</li>
+        
+          <li><a href="t5scripts.html">scripts</a> &raquo;</li>
+        
+      <li>ur5_action_client.py</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/rst/ur5_action_client.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-ur5_action_client">
+<span id="ur5-action-client-py"></span><h1>ur5_action_client.py<a class="headerlink" href="#module-ur5_action_client" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="ur5_action_client.RosIotBridgeActionClient">
+<em class="property">class </em><code class="descclassname">ur5_action_client.</code><code class="descname">RosIotBridgeActionClient</code><a class="reference internal" href="../_modules/ur5_action_client.html#RosIotBridgeActionClient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ur5_action_client.RosIotBridgeActionClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class takes the orders through the ros-iot bridge from the order node from 
+‘/ros_iot_bridge/mqtt/sub’.
+It manages the inventory by processing the image it gets from the 2D camera through 
+rostopic “/eyrc/vb/camera_1/image_raw”.
+It also sends orders to the ur5#1 arm on which box to dispatch through ‘/arm_commander’.
+If a certain order is not present in inventory, that case is also handled here.</p>
+<p>This receives the processing orders if a specific order is dispatched, shipped or is
+found in the inventory through rostopic ‘/order_status’ and sends goals to the action server 
+to publish the information on their respective sheet on Google Sheets.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>_acIot</strong> – Action Client object.</li>
+<li><strong>_goal_handles</strong> – Takes care of the goal.</li>
+<li><strong>bridge</strong> – OpenCV object. Used for image processing.</li>
+<li><strong>pub_empty</strong> – Publisher handle to publish to rostopic “/order_status”.</li>
+<li><strong>pub_arm</strong> – Publisher handle to publish to rostopic ‘/arm_commander’</li>
+<li><strong>check</strong> – Boolean flag variable to control refreshing of inventory.</li>
+<li><strong>boxes</strong> – Contains the colors of the boxes present in the shelf in order as present in the shelf.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="ur5_action_client.RosIotBridgeActionClient.cam_callback">
+<code class="descname">cam_callback</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ur5_action_client.html#RosIotBridgeActionClient.cam_callback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ur5_action_client.RosIotBridgeActionClient.cam_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback function that receives the image taken by 2D camera.
+It also is responsible for the decoding of QR code and making of the inventory.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> (<em>sensor_msgs::Image</em>) – A message conveying the image.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ur5_action_client.RosIotBridgeActionClient.get_qr_data">
+<code class="descname">get_qr_data</code><span class="sig-paren">(</span><em>arg_image</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ur5_action_client.html#RosIotBridgeActionClient.get_qr_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ur5_action_client.RosIotBridgeActionClient.get_qr_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decodes of the QR code present in the image.</p>
+<p>Receives the image and decodes the QR present in it.
+Uses decode function from pyzbar to decode the QR code.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>arg_image</strong> (<em>Image</em>) – A 2D Image array in which the QR code is decoded.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Returns the decoded data if QR code can be decoded or is present at all. Returns ‘NA’ otherwise.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ur5_action_client.RosIotBridgeActionClient.inventory">
+<code class="descname">inventory</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ur5_action_client.html#RosIotBridgeActionClient.inventory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ur5_action_client.RosIotBridgeActionClient.inventory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the inventory and logs the inventory data as a Goal.</p>
+<p>It creates the inventory from the decoded QR codes, uses relevant information to create the SKU, adds necessary 
+information that needs to be logged on the Google Sheet ‘Inventory’ and sends it as a goal to the Action Server.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ur5_action_client.RosIotBridgeActionClient.mqttsub_callback">
+<code class="descname">mqttsub_callback</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ur5_action_client.html#RosIotBridgeActionClient.mqttsub_callback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ur5_action_client.RosIotBridgeActionClient.mqttsub_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Processes orders sent in by the Action Server.</p>
+<p>This receives the orders, checks the inventory for the availability and publishes information to rostopic 
+‘/arm_commander’ in form “&lt; color_of_box &gt;;&lt; x-coordinate on shelf &gt;;&lt; y-coordinate on shelf &gt;;&lt; order id &gt;”
+if the order is available in the inventory, or else publishes “&lt; order id &gt;;failed” to rostopic “/order_status”.</p>
+<p>It also manages the presence of boxes on the shelf as the orders are processed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>string</em>) – Contains the order in form of a dictionary as a string, which contains all relevant information regarding the order.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ur5_action_client.RosIotBridgeActionClient.on_transition">
+<code class="descname">on_transition</code><span class="sig-paren">(</span><em>goal_handle</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ur5_action_client.html#RosIotBridgeActionClient.on_transition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ur5_action_client.RosIotBridgeActionClient.on_transition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts when there is a change in Goal State.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>goal_handle</strong> – Goals that are added to be done.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ur5_action_client.RosIotBridgeActionClient.qr_codes">
+<code class="descname">qr_codes</code><span class="sig-paren">(</span><em>image</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ur5_action_client.html#RosIotBridgeActionClient.qr_codes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ur5_action_client.RosIotBridgeActionClient.qr_codes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes an image, slices it to get the QR code of the boxes.
+Tuned to get accurate results for the current setup.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>image</strong> (<em>sensor_msgs::Image message</em>) – Message containing an image of the shelf with or without the boxes.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ur5_action_client.RosIotBridgeActionClient.send_goal">
+<code class="descname">send_goal</code><span class="sig-paren">(</span><em>arg_protocol</em>, <em>arg_mode</em>, <em>arg_topic</em>, <em>arg_message</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ur5_action_client.html#RosIotBridgeActionClient.send_goal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ur5_action_client.RosIotBridgeActionClient.send_goal" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is used to send Goals to Action Server</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>arg_protocol</strong> – Protocol type by which the goal is done.</li>
+<li><strong>arg_mode</strong> – Mode of operation to be carried out.</li>
+<li><strong>arg_topic</strong> – Topic on which the goal is published.</li>
+<li><strong>arg_message</strong> – Contains the message to be processed.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">goal_handle</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ur5_action_client.RosIotBridgeActionClient.status_call">
+<code class="descname">status_call</code><span class="sig-paren">(</span><em>feed</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ur5_action_client.html#RosIotBridgeActionClient.status_call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ur5_action_client.RosIotBridgeActionClient.status_call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Processes the order status of the orders.</p>
+<p>This receives the status of orders from the rostopic ‘order_status’ and sends it
+to the Action Server as a goal. 
+Types of goals received:</p>
+<p>dispatched: An order of a specific order id has been dispatched.</p>
+<p>shipped: An order of a specific order id has been shipped.</p>
+<p>failed: An order of a specific order id has not been found in the inventory.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>feed</strong> (<em>string</em>) – This contains the message in form ‘&lt; order_id &gt;;&lt; goal &gt;’</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="ur5_action_client.main">
+<code class="descclassname">ur5_action_client.</code><code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ur5_action_client.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ur5_action_client.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates RosIotBridgeActionClient instance and keeps the node running.
+Also, turns on the flag ‘check’ when image from 2D camera needs to be processed.</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="t5config.html" class="btn btn-neutral float-right" title="Config Files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="ur5_2_controller.html" class="btn btn-neutral float-left" title="ur5_2_controller.py" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, vb_1844.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

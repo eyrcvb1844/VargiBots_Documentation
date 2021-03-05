@@ -1,0 +1,683 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>ur5_2_controller &mdash; Vargi Bots 1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Vargi Bots
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rst/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rst/implement.html">Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rst/modules.html">pkg_ros_iot_bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rst/modules.html#pkg-task5">pkg_task5</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Vargi Bots</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>ur5_2_controller</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for ur5_2_controller</h1><div class="highlight"><pre>
+<span></span><span class="ch">#! /usr/bin/env python</span>
+
+<span class="kn">from</span> <span class="nn">actionlib.action_client</span> <span class="kn">import</span> <span class="n">GoalManager</span>
+<span class="kn">import</span> <span class="nn">rospy</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">moveit_commander</span>
+<span class="kn">import</span> <span class="nn">moveit_msgs.msg</span>
+<span class="kn">import</span> <span class="nn">geometry_msgs.msg</span>
+<span class="kn">import</span> <span class="nn">actionlib</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">rosservice</span>
+<span class="kn">import</span> <span class="nn">rospkg</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">cv2</span>
+
+<span class="kn">from</span> <span class="nn">std_msgs.msg</span> <span class="kn">import</span> <span class="n">String</span>
+<span class="kn">from</span> <span class="nn">sensor_msgs.msg</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span> <span class="nn">importlib</span> <span class="kn">import</span> <span class="n">import_module</span>
+<span class="kn">from</span> <span class="nn">cv_bridge</span> <span class="kn">import</span> <span class="n">CvBridge</span><span class="p">,</span> <span class="n">CvBridgeError</span>
+<span class="kn">from</span> <span class="nn">pkg_vb_sim.srv</span> <span class="kn">import</span> <span class="n">vacuumGripper</span>
+<span class="kn">from</span> <span class="nn">pyzbar.pyzbar</span> <span class="kn">import</span> <span class="n">decode</span>
+
+<span class="n">boxes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+<span class="n">colors</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+<span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span>
+
+
+<div class="viewcode-block" id="Actuator2"><a class="viewcode-back" href="../rst/ur5_2_controller.html#ur5_2_controller.Actuator2">[docs]</a><span class="k">class</span> <span class="nc">Actuator2</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This class recieves whether a package is under the end effector of the ur5_2 arm from the rostopic &quot;check_box&quot;, and then the package&#39;s colour through the rostopic &quot;/order_shipping&quot;.</span>
+<span class="sd">        It then makes the ur5_2 arm pick up the package place the package in the appropriate bin, and then publishes a shipped message through the rostopic &quot;order_status&quot;.</span>
+
+
+<span class="sd">        :param _robot_ns: Name of the ur5 arm</span>
+<span class="sd">        :param _planning_group: Name of the planning group by the ur5 arm</span>
+<span class="sd">        :param _commander: initialized moveit_commander object</span>
+<span class="sd">        :param _robot: moveit_commander.RobotCommander object to get the group names and the current state of the ur5 arm</span>
+<span class="sd">        :param _scene: moveit_commander.PlanningSceneInterface object to get the Rviz scene of the arm</span>
+<span class="sd">        :param _group: moveit_commander.MoveGroupCommander object to move the ur5 arm</span>
+<span class="sd">        :param _display_trajectory_publisher: Publisher handle to publish to /ur5_2/move_group/display_planned_path</span>
+<span class="sd">        :param _exectute_trajectory_client: Simple Action Client object</span>
+<span class="sd">        :param _planning_frame: gets the planning frame of the ur5 arm</span>
+<span class="sd">        :param _eef_link: gets the end effector link of the ur5 arm</span>
+<span class="sd">        :param _group_names: gets the group names of the ur5 arm</span>
+<span class="sd">        :param _box_name: gets the name of the box to be added or removed from the Rviz scene</span>
+<span class="sd">        :param order_status: Publisher handle to publish Dispatch in rostopic &quot;/order_status&quot; once a package is placed on the conveyor belt</span>
+<span class="sd">        :param order_shipping: Publisher handle to publish the colour and id of the package placed on the conveyor belt</span>
+<span class="sd">        :param _computed_plan: Stores computed trajectory by planner</span>
+<span class="sd">        :param _pkg_path: Stores the path of pkg_task5</span>
+<span class="sd">        :param _file_path: Stores the path of the folder which contains the saved yaml trajectory files</span>
+<span class="sd">        :param _curr_state: Gets the current state of the robot        </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Constructor</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg_robot_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Constructor for the Actuator2 class.</span>
+<span class="sd">            It initializes all the class variables.</span>
+<span class="sd">            This subscribes and publishes the to following topics </span>
+<span class="sd">            - &quot;/ur5_2/move_group/display_planned_path&quot;</span>
+<span class="sd">            - &quot;/ur5_2/execute_trajectory&quot;</span>
+<span class="sd">            - &quot;/arm_commander&quot;</span>
+<span class="sd">            - &quot;/order_status&quot;</span>
+<span class="sd">            - &quot;/order_shipping&quot;</span>
+<span class="sd">            - &quot;check_box&quot;</span>
+
+<span class="sd">        :param arg_robot_name: Takes the name of the ur5 arm to be controlled i.e. ur5_1 or ur5_2</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">rospy</span><span class="o">.</span><span class="n">init_node</span><span class="p">(</span><span class="s1">&#39;ur5_2_controller&#39;</span><span class="p">,</span> <span class="n">anonymous</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_robot_ns</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">arg_robot_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_planning_group</span> <span class="o">=</span> <span class="s2">&quot;manipulator&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_commander</span> <span class="o">=</span> <span class="n">moveit_commander</span><span class="o">.</span><span class="n">roscpp_initialize</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_robot</span> <span class="o">=</span> <span class="n">moveit_commander</span><span class="o">.</span><span class="n">RobotCommander</span><span class="p">(</span>
+            <span class="n">robot_description</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_robot_ns</span> <span class="o">+</span> <span class="s2">&quot;/robot_description&quot;</span><span class="p">,</span> <span class="n">ns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_robot_ns</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scene</span> <span class="o">=</span> <span class="n">moveit_commander</span><span class="o">.</span><span class="n">PlanningSceneInterface</span><span class="p">(</span>
+            <span class="n">ns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_robot_ns</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_group</span> <span class="o">=</span> <span class="n">moveit_commander</span><span class="o">.</span><span class="n">MoveGroupCommander</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_planning_group</span><span class="p">,</span> <span class="n">robot_description</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_robot_ns</span> <span class="o">+</span> <span class="s2">&quot;/robot_description&quot;</span><span class="p">,</span> <span class="n">ns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_robot_ns</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">set_planning_time</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_display_trajectory_publisher</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Publisher</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_robot_ns</span> <span class="o">+</span> <span class="s1">&#39;/move_group/display_planned_path&#39;</span><span class="p">,</span> <span class="n">moveit_msgs</span><span class="o">.</span><span class="n">msg</span><span class="o">.</span><span class="n">DisplayTrajectory</span><span class="p">,</span> <span class="n">queue_size</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_exectute_trajectory_client</span> <span class="o">=</span> <span class="n">actionlib</span><span class="o">.</span><span class="n">SimpleActionClient</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_robot_ns</span> <span class="o">+</span> <span class="s1">&#39;/execute_trajectory&#39;</span><span class="p">,</span> <span class="n">moveit_msgs</span><span class="o">.</span><span class="n">msg</span><span class="o">.</span><span class="n">ExecuteTrajectoryAction</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_exectute_trajectory_client</span><span class="o">.</span><span class="n">wait_for_server</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_planning_frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">get_planning_frame</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_eef_link</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">get_end_effector_link</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_group_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_robot</span><span class="o">.</span><span class="n">get_group_names</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_box_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+        <span class="c1"># Attribute to store computed trajectory by the planner</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_computed_plan</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">rp</span> <span class="o">=</span> <span class="n">rospkg</span><span class="o">.</span><span class="n">RosPack</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pkg_path</span> <span class="o">=</span> <span class="n">rp</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="s1">&#39;pkg_task5&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pkg_path</span> <span class="o">+</span> <span class="s1">&#39;/config/saved_trajectories/&#39;</span>
+
+        <span class="c1"># Current State of the Robot is needed to add box to planning scene</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_curr_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_robot</span><span class="o">.</span><span class="n">get_current_state</span><span class="p">()</span>
+
+        <span class="n">rospy</span><span class="o">.</span><span class="n">Subscriber</span><span class="p">(</span><span class="s1">&#39;/order_shipping&#39;</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">arm_command</span><span class="p">)</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">Subscriber</span><span class="p">(</span><span class="s1">&#39;check_box&#39;</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pickup</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">order_status</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Publisher</span><span class="p">(</span>
+            <span class="s1">&#39;/order_status&#39;</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">queue_size</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+
+        <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span>
+            <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[94m&#39;</span> <span class="o">+</span> <span class="s2">&quot;Planning Group: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_planning_frame</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span>
+            <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[94m&#39;</span> <span class="o">+</span> <span class="s2">&quot;End Effector Link: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_eef_link</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span>
+            <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[94m&#39;</span> <span class="o">+</span> <span class="s2">&quot;Group Names: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_group_names</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Actuator2.set_joint_angles"><a class="viewcode-back" href="../rst/ur5_2_controller.html#ur5_2_controller.Actuator2.set_joint_angles">[docs]</a>    <span class="k">def</span> <span class="nf">set_joint_angles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg_list_joint_angles</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the joint angles of the ur5 arm to the given set of joint angles.</span>
+
+<span class="sd">        :param arg_list_joint_angles: Gets the set of joint angles</span>
+
+<span class="sd">        :return: flag_plan: Indicates the success at setting the given joint angles</span>
+<span class="sd">        :rtype: boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">list_joint_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">get_current_joint_values</span><span class="p">()</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[94m&#39;</span> <span class="o">+</span> <span class="s2">&quot;&gt;&gt;&gt; Current Joint Values:&quot;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span><span class="n">list_joint_values</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">set_joint_value_target</span><span class="p">(</span><span class="n">arg_list_joint_angles</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">plan</span><span class="p">()</span>
+        <span class="n">flag_plan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">go</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">list_joint_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">get_current_joint_values</span><span class="p">()</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[94m&#39;</span> <span class="o">+</span> <span class="s2">&quot;&gt;&gt;&gt; Final Joint Values:&quot;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span><span class="n">list_joint_values</span><span class="p">)</span>
+
+        <span class="n">pose_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">get_current_pose</span><span class="p">()</span><span class="o">.</span><span class="n">pose</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[94m&#39;</span> <span class="o">+</span> <span class="s2">&quot;&gt;&gt;&gt; Final Pose:&quot;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span><span class="n">pose_values</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">flag_plan</span> <span class="o">==</span> <span class="kc">True</span><span class="p">):</span>
+            <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span>
+                <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[94m&#39;</span> <span class="o">+</span> <span class="s2">&quot;&gt;&gt;&gt; set_joint_angles() Success&quot;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rospy</span><span class="o">.</span><span class="n">logerr</span><span class="p">(</span>
+                <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[94m&#39;</span> <span class="o">+</span> <span class="s2">&quot;&gt;&gt;&gt; set_joint_angles() Failed.&quot;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">flag_plan</span></div>
+
+<div class="viewcode-block" id="Actuator2.wait_for_state_update"><a class="viewcode-back" href="../rst/ur5_2_controller.html#ur5_2_controller.Actuator2.wait_for_state_update">[docs]</a>    <span class="k">def</span> <span class="nf">wait_for_state_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">box_is_known</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">box_is_attached</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks to see if Rviz has updated its scene in 4 different ways according to Arguments- \n</span>
+<span class="sd">        1) If the Box was added to the scene</span>
+<span class="sd">        2) If the End Effector has gripped the box</span>
+<span class="sd">        3) If the End Effector has released the box</span>
+<span class="sd">        4) If the Box was removed from the scene</span>
+
+<span class="sd">        :param box_is_known: True if there is supposed to be a box in the scene, False if there is supposed to be no box in the scene</span>
+<span class="sd">        :param box_is_attached: True if the End Effector is supposed to attach to the box, False if the End Effector is supposed to detach the box</span>
+<span class="sd">        :param timeout: No. Of seconds given to check if the Rviz scene has updated or not</span>
+
+<span class="sd">        :return: Value indicating the success of Rviz updating its scene according to the following parameters</span>
+<span class="sd">        :rtype: boolean</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">box_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_box_name</span>
+        <span class="n">scene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scene</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">get_time</span><span class="p">()</span>
+        <span class="n">seconds</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">get_time</span><span class="p">()</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">seconds</span> <span class="o">-</span> <span class="n">start</span> <span class="o">&lt;</span> <span class="n">timeout</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">rospy</span><span class="o">.</span><span class="n">is_shutdown</span><span class="p">():</span>
+            <span class="n">attached_objects</span> <span class="o">=</span> <span class="n">scene</span><span class="o">.</span><span class="n">get_attached_objects</span><span class="p">([</span><span class="n">box_name</span><span class="p">])</span>
+            <span class="n">is_attached</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">attached_objects</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+            <span class="n">is_known</span> <span class="o">=</span> <span class="n">box_name</span> <span class="ow">in</span> <span class="n">scene</span><span class="o">.</span><span class="n">get_known_object_names</span><span class="p">()</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">box_is_attached</span> <span class="o">==</span> <span class="n">is_attached</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">box_is_known</span> <span class="o">==</span> <span class="n">is_known</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+
+            <span class="n">rospy</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+            <span class="n">seconds</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">get_time</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Actuator2.add_box"><a class="viewcode-back" href="../rst/ur5_2_controller.html#ur5_2_controller.Actuator2.add_box">[docs]</a>    <span class="k">def</span> <span class="nf">add_box</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a box at x, y, z coordinate in the Rviz Scene</span>
+
+<span class="sd">        :param x: The X-coordinate where the box is to be added</span>
+<span class="sd">        :param y: The Y-coordinate where the box is to be added</span>
+<span class="sd">        :param z: The Z-coordinate where the box is to be added</span>
+<span class="sd">        :param type: The Name the box is given in the Rviz scene</span>
+<span class="sd">        :param timeout: No. Of seconds given to check if the Rviz scene has updated or not</span>
+
+<span class="sd">        :return: Value indicating the success of the box being added to the Rviz Scene</span>
+<span class="sd">        :rtype: boolean</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">box_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_box_name</span>
+        <span class="n">scene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scene</span>
+
+        <span class="n">box_pose</span> <span class="o">=</span> <span class="n">geometry_msgs</span><span class="o">.</span><span class="n">msg</span><span class="o">.</span><span class="n">PoseStamped</span><span class="p">()</span>
+        <span class="n">box_pose</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">frame_id</span> <span class="o">=</span> <span class="s2">&quot;world&quot;</span>
+        <span class="n">box_pose</span><span class="o">.</span><span class="n">pose</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">box_pose</span><span class="o">.</span><span class="n">pose</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="n">box_pose</span><span class="o">.</span><span class="n">pose</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">z</span>
+        <span class="n">box_name</span> <span class="o">=</span> <span class="nb">type</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">add_box</span><span class="p">(</span><span class="n">box_name</span><span class="p">,</span> <span class="n">box_pose</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_box_name</span> <span class="o">=</span> <span class="n">box_name</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wait_for_state_update</span><span class="p">(</span><span class="n">box_is_known</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Actuator2.attach_box"><a class="viewcode-back" href="../rst/ur5_2_controller.html#ur5_2_controller.Actuator2.attach_box">[docs]</a>    <span class="k">def</span> <span class="nf">attach_box</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Makes the End Effector grab the box</span>
+
+<span class="sd">        :param timeout: No. Of seconds given to check if the Rviz scene has updated or not</span>
+<span class="sd">        :type timeout: int, optional</span>
+
+<span class="sd">        :return: Value indicating the success of the End Effector grabbing the box</span>
+<span class="sd">        :rtype: boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">box_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_box_name</span>
+        <span class="n">robot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_robot</span>
+        <span class="n">scene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scene</span>
+        <span class="n">eef_link</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eef_link</span>
+        <span class="n">group_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group_names</span>
+
+        <span class="n">grasping_group</span> <span class="o">=</span> <span class="s1">&#39;manipulator&#39;</span>
+        <span class="n">touch_links</span> <span class="o">=</span> <span class="n">robot</span><span class="o">.</span><span class="n">get_link_names</span><span class="p">(</span><span class="n">group</span><span class="o">=</span><span class="n">grasping_group</span><span class="p">)</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">attach_box</span><span class="p">(</span><span class="n">eef_link</span><span class="p">,</span> <span class="n">box_name</span><span class="p">,</span> <span class="n">touch_links</span><span class="o">=</span><span class="n">touch_links</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wait_for_state_update</span><span class="p">(</span><span class="n">box_is_attached</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">box_is_known</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Actuator2.detach_box"><a class="viewcode-back" href="../rst/ur5_2_controller.html#ur5_2_controller.Actuator2.detach_box">[docs]</a>    <span class="k">def</span> <span class="nf">detach_box</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Makes the End Effector detach the box</span>
+
+<span class="sd">        :param timeout: No. Of seconds given to check if the Rviz scene has updated or not</span>
+<span class="sd">        :type timeout: int, optional</span>
+
+<span class="sd">        :return: Value indicating the success of the End Effector detaching the box</span>
+<span class="sd">        :rtype: boolean</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">box_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_box_name</span>
+        <span class="n">scene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scene</span>
+        <span class="n">eef_link</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eef_link</span>
+
+        <span class="n">scene</span><span class="o">.</span><span class="n">remove_attached_object</span><span class="p">(</span><span class="n">eef_link</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">box_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wait_for_state_update</span><span class="p">(</span><span class="n">box_is_known</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">box_is_attached</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Actuator2.remove_box"><a class="viewcode-back" href="../rst/ur5_2_controller.html#ur5_2_controller.Actuator2.remove_box">[docs]</a>    <span class="k">def</span> <span class="nf">remove_box</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deletes the box from the Rviz scene</span>
+<span class="sd">        :param timeout: No. Of seconds given to check if the Rviz scene has updated or not</span>
+<span class="sd">        :type timeout: int, optional</span>
+
+<span class="sd">        :return: Value indicating the success of the deletion of the box from the scene</span>
+<span class="sd">        :rtype: boolean</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">box_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_box_name</span>
+        <span class="n">scene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scene</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">remove_world_object</span><span class="p">(</span><span class="n">box_name</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wait_for_state_update</span><span class="p">(</span><span class="n">box_is_attached</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">box_is_known</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Actuator2.attachgripper"><a class="viewcode-back" href="../rst/ur5_2_controller.html#ur5_2_controller.Actuator2.attachgripper">[docs]</a>    <span class="k">def</span> <span class="nf">attachgripper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Turns on i.e Activates the End Effector(Vacuum Gripper) by accessing it&#39;s Service</span>
+<span class="sd">        </span>
+<span class="sd">        :param r_name: The name of the robot whose vacuum gripper service is accessed.</span>
+<span class="sd">        :type r_name: string</span>
+
+<span class="sd">        :return: Value indicating that the Vacuum Gripper has been activated</span>
+<span class="sd">        :rtype: boolean</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">wait_for_service</span><span class="p">(</span>
+            <span class="s1">&#39;/eyrc/vb/ur5/activate_vacuum_gripper/&#39;</span> <span class="o">+</span> <span class="n">r_name</span><span class="p">)</span>
+        <span class="n">grip</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">ServiceProxy</span><span class="p">(</span>
+            <span class="s1">&#39;/eyrc/vb/ur5/activate_vacuum_gripper/&#39;</span> <span class="o">+</span> <span class="n">r_name</span><span class="p">,</span> <span class="n">vacuumGripper</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">grip</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Actuator2.dettachgripper"><a class="viewcode-back" href="../rst/ur5_2_controller.html#ur5_2_controller.Actuator2.dettachgripper">[docs]</a>    <span class="k">def</span> <span class="nf">dettachgripper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Turns off i.e deactivates the End Effector(Vacuum Gripper) by accessing its Service</span>
+
+<span class="sd">        :param r_name: The name of the robot whose vacuum gripper service is accessed.</span>
+<span class="sd">        :type r_name: string</span>
+
+<span class="sd">        :return: Value indicating that the Vacuum Gripper has been activated</span>
+<span class="sd">        :rtype: boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">rospy</span><span class="o">.</span><span class="n">wait_for_service</span><span class="p">(</span>
+            <span class="s1">&#39;/eyrc/vb/ur5/activate_vacuum_gripper/&#39;</span> <span class="o">+</span> <span class="n">r_name</span><span class="p">)</span>
+        <span class="n">grip</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">ServiceProxy</span><span class="p">(</span>
+            <span class="s1">&#39;/eyrc/vb/ur5/activate_vacuum_gripper/&#39;</span> <span class="o">+</span> <span class="n">r_name</span><span class="p">,</span> <span class="n">vacuumGripper</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">grip</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Actuator2.arm_command"><a class="viewcode-back" href="../rst/ur5_2_controller.html#ur5_2_controller.Actuator2.arm_command">[docs]</a>    <span class="k">def</span> <span class="nf">arm_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Callback function to get the colour of the package currently placed on the conveyor and adding it to a global list colors.</span>
+<span class="sd">        This is used to accordingly place the packages in the right coloured bins.</span>
+<span class="sd">        </span>
+<span class="sd">        :param message: The color of the package currently placed on the conveyor belt.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">global</span> <span class="n">colors</span>
+        <span class="n">col</span><span class="p">,</span> <span class="nb">id</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)</span>
+        <span class="n">colors</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="nb">id</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Actuator2.pickup"><a class="viewcode-back" href="../rst/ur5_2_controller.html#ur5_2_controller.Actuator2.pickup">[docs]</a>    <span class="k">def</span> <span class="nf">pickup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Callback function which makes the ur5_2 arm pick up the package from the conveyor belt when the box is placed just under the ur5_2 end effector, and takes the package over to the appropriate coloured bin and releases the package.</span>
+<span class="sd">        </span>
+<span class="sd">        :param message: Indicates if there is a box positioned just under the ur5_2 end effector (by a boolean value) and the index of the package (to synchronize with the index of the package colour). If True, then the ur5_2 arm picks up the package and places it in the right coloured bin.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">global</span> <span class="n">cnt</span><span class="p">,</span> <span class="n">colors</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="mf">0.995</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">data</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">cnt</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;True&quot;</span><span class="p">):</span>
+            <span class="n">typ</span> <span class="o">=</span> <span class="n">colors</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">pose_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">get_current_pose</span><span class="p">()</span><span class="o">.</span><span class="n">pose</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_box</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">pose_values</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span>
+                <span class="n">pose_values</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">z</span><span class="p">),</span> <span class="n">typ</span><span class="p">)</span>
+            <span class="k">while</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">flag_gripper</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">check_gripper</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">ServiceProxy</span><span class="p">(</span>
+                    <span class="s1">&#39;/eyrc/vb/ur5/activate_vacuum_gripper/ur5_2&#39;</span><span class="p">,</span> <span class="n">vacuumGripper</span><span class="p">)</span>
+                <span class="n">flag_gripper</span> <span class="o">=</span> <span class="n">check_gripper</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">result</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">attachgripper</span><span class="p">(</span><span class="s2">&quot;ur5_2&quot;</span><span class="p">)</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">flag_gripper</span><span class="p">):</span>
+                    <span class="k">break</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attach_box</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">typ</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">order_status</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">colors</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;;&#39;</span><span class="o">+</span><span class="s2">&quot;shipped&quot;</span><span class="p">)</span>
+            <span class="n">colors</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="n">cnt</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="Actuator2.moveit_play_planned_path_from_file"><a class="viewcode-back" href="../rst/ur5_2_controller.html#ur5_2_controller.Actuator2.moveit_play_planned_path_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">moveit_play_planned_path_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg_file_path</span><span class="p">,</span> <span class="n">arg_file_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plays the requested yaml saved trajectory.</span>
+<span class="sd">        </span>
+<span class="sd">        :param arg_file_path: Gets the directory in which all the yaml saved trajectories are saved</span>
+<span class="sd">        :param arg_file_name: Gets the specific name of the yaml saved trajectory to be played</span>
+<span class="sd">    </span>
+<span class="sd">        :return: Value which indicates the success of playing the requested yaml trajectory</span>
+<span class="sd">        :rtype: boolean</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">arg_file_path</span> <span class="o">+</span> <span class="n">arg_file_name</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_open</span><span class="p">:</span>
+            <span class="n">loaded_plan</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file_open</span><span class="p">)</span>
+
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">loaded_plan</span><span class="p">)</span>
+        <span class="c1"># rospy.logerr(ret)</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="Actuator2.moveit_hard_play_planned_path_from_file"><a class="viewcode-back" href="../rst/ur5_2_controller.html#ur5_2_controller.Actuator2.moveit_hard_play_planned_path_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">moveit_hard_play_planned_path_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg_file_path</span><span class="p">,</span> <span class="n">arg_file_name</span><span class="p">,</span> <span class="n">arg_max_attempts</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plays the requested yaml saved trajectory by calling def moveit_play_planned_path_from_file and attempts it &quot;arg_max_attempts&quot; no. of times before aborting.</span>
+<span class="sd">        </span>
+<span class="sd">        :param arg_file_path: Gets the directory in which all the yaml saved trajectories are saved</span>
+<span class="sd">        :param arg_file_name: Gets the specific name of the yaml saved trajectory to be played</span>
+<span class="sd">        :param arg_max_attempts: Gets the number of times function should attempt at playing the yaml trajectory before aborting</span>
+
+<span class="sd">        :return: True after the process is over</span>
+<span class="sd">        :rtype: boolean</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">number_attempts</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">flag_success</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">while</span> <span class="p">((</span><span class="n">number_attempts</span> <span class="o">&lt;=</span> <span class="n">arg_max_attempts</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">flag_success</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">)):</span>
+            <span class="n">number_attempts</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">flag_success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moveit_play_planned_path_from_file</span><span class="p">(</span>
+                <span class="n">arg_file_path</span><span class="p">,</span> <span class="n">arg_file_name</span><span class="p">)</span>
+            <span class="n">rospy</span><span class="o">.</span><span class="n">logwarn</span><span class="p">(</span><span class="s2">&quot;attempts: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">number_attempts</span><span class="p">))</span>
+            <span class="c1"># # self.clear_octomap()</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Actuator2.drop"><a class="viewcode-back" href="../rst/ur5_2_controller.html#ur5_2_controller.Actuator2.drop">[docs]</a>    <span class="k">def</span> <span class="nf">drop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Makes the ur5_2 arm move from the conveyor belt to the right coloured bin, drop the package, and then come back to its home position.</span>
+<span class="sd">        </span>
+<span class="sd">        :param type: Colour of the package and thus the bin where the package is supposed to end up in.</span>
+<span class="sd">        :type type: string</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">flag1</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">flag2</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;red&quot;</span><span class="p">):</span>
+            <span class="k">while</span><span class="p">(</span><span class="kc">True</span><span class="p">):</span>
+                <span class="n">flag1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moveit_hard_play_planned_path_from_file</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_file_path</span><span class="p">,</span> <span class="s1">&#39;home_to_red.yaml&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">flag1</span> <span class="o">==</span> <span class="kc">True</span><span class="p">):</span>
+                    <span class="k">break</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">drop_in_bin</span><span class="p">()</span>
+            <span class="k">while</span><span class="p">(</span><span class="kc">True</span><span class="p">):</span>
+                <span class="n">flag2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moveit_hard_play_planned_path_from_file</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_file_path</span><span class="p">,</span> <span class="s1">&#39;red_to_home.yaml&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">flag2</span> <span class="o">==</span> <span class="kc">True</span><span class="p">):</span>
+                    <span class="k">break</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;yellow&quot;</span><span class="p">):</span>
+            <span class="k">while</span><span class="p">(</span><span class="kc">True</span><span class="p">):</span>
+                <span class="n">flag1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moveit_hard_play_planned_path_from_file</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_file_path</span><span class="p">,</span> <span class="s1">&#39;home_to_yellow.yaml&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">flag1</span> <span class="o">==</span> <span class="kc">True</span><span class="p">):</span>
+                    <span class="k">break</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">drop_in_bin</span><span class="p">()</span>
+            <span class="k">while</span><span class="p">(</span><span class="kc">True</span><span class="p">):</span>
+                <span class="n">flag2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moveit_hard_play_planned_path_from_file</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_file_path</span><span class="p">,</span> <span class="s1">&#39;yellow_to_home.yaml&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">flag2</span> <span class="o">==</span> <span class="kc">True</span><span class="p">):</span>
+                    <span class="k">break</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;green&quot;</span><span class="p">):</span>
+            <span class="k">while</span><span class="p">(</span><span class="kc">True</span><span class="p">):</span>
+                <span class="n">flag1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moveit_hard_play_planned_path_from_file</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_file_path</span><span class="p">,</span> <span class="s1">&#39;home_to_green.yaml&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">flag1</span> <span class="o">==</span> <span class="kc">True</span><span class="p">):</span>
+                    <span class="k">break</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">drop_in_bin</span><span class="p">()</span>
+            <span class="k">while</span><span class="p">(</span><span class="kc">True</span><span class="p">):</span>
+                <span class="n">flag2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moveit_hard_play_planned_path_from_file</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_file_path</span><span class="p">,</span> <span class="s1">&#39;green_to_home.yaml&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">flag2</span> <span class="o">==</span> <span class="kc">True</span><span class="p">):</span>
+                    <span class="k">break</span></div>
+
+
+<div class="viewcode-block" id="Actuator2.drop_in_bin"><a class="viewcode-back" href="../rst/ur5_2_controller.html#ur5_2_controller.Actuator2.drop_in_bin">[docs]</a>    <span class="k">def</span> <span class="nf">drop_in_bin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Makes the ur5_2 arm drop the package and remove the package drom the ur5_2 Rviz Scene.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dettachgripper</span><span class="p">(</span><span class="s2">&quot;ur5_2&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">detach_box</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remove_box</span><span class="p">()</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span></div>
+
+    <span class="c1"># Destructor</span>
+
+    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">moveit_commander</span><span class="o">.</span><span class="n">roscpp_shutdown</span><span class="p">()</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span>
+            <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[94m&#39;</span> <span class="o">+</span> <span class="s2">&quot;Object of class Actuator Deleted.&quot;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../rst/ur5_2_controller.html#ur5_2_controller.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Instantiates an Actuator2 object of the ur5_2 arm and sets the arm to its home position</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ur5</span> <span class="o">=</span> <span class="n">Actuator2</span><span class="p">(</span><span class="s2">&quot;ur5_2&quot;</span><span class="p">)</span>
+
+    <span class="n">home</span> <span class="o">=</span> <span class="p">[</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mf">8.6</span><span class="p">),</span>
+            <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="o">-</span><span class="mi">123</span><span class="p">),</span>
+            <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="o">-</span><span class="mi">88</span><span class="p">),</span>
+            <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="o">-</span><span class="mi">59</span><span class="p">),</span>
+            <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mi">90</span><span class="p">),</span>
+            <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span>
+    <span class="n">ur5</span><span class="o">.</span><span class="n">set_joint_angles</span><span class="p">(</span><span class="n">home</span><span class="p">)</span>
+    <span class="n">rospy</span><span class="o">.</span><span class="n">spin</span><span class="p">()</span>
+
+    <span class="k">del</span> <span class="n">ur5</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">main</span><span class="p">()</span>
+    <span class="k">except</span> <span class="n">rospy</span><span class="o">.</span><span class="n">ROSInterruptException</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="k">pass</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, vb_1844.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

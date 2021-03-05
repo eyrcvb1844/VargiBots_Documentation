@@ -1,0 +1,517 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>ur5_1_controller.py &mdash; Vargi Bots 1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ur5_2_controller.py" href="ur5_2_controller.html" />
+    <link rel="prev" title="convey.py" href="convey.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Vargi Bots
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implement.html">Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">pkg_ros_iot_bridge</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html#pkg-task5">pkg_task5</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="t5scripts.html">scripts</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="convey.html">convey.py</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">ur5_1_controller.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ur5_2_controller.html">ur5_2_controller.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ur5_action_client.html">ur5_action_client.py</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="t5config.html">Config Files</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Vargi Bots</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="modules.html">pkg_ros_iot_bridge</a> &raquo;</li>
+        
+          <li><a href="t5scripts.html">scripts</a> &raquo;</li>
+        
+      <li>ur5_1_controller.py</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/rst/ur5_1_controller.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-ur5_1_controller">
+<span id="ur5-1-controller-py"></span><h1>ur5_1_controller.py<a class="headerlink" href="#module-ur5_1_controller" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="ur5_1_controller.Actuator">
+<em class="property">class </em><code class="descclassname">ur5_1_controller.</code><code class="descname">Actuator</code><span class="sig-paren">(</span><em>arg_robot_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ur5_1_controller.html#Actuator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ur5_1_controller.Actuator" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class recieves the orders from the ur5_action_client node through “/arm_commander” and stores them in a tuple sorted according to their priority. 
+It then makes the ur5_1 arm pick up the packages according to the recieved orders in the sorted order and places them on the conveyor belt using the saved yaml trajectories,
+and then publishes the dispatch message in rostopic “/order_status” and the colour and id of the package dispatched in rostopic “/order_shipping”.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>_robot_ns</strong> – Name of the ur5 arm</li>
+<li><strong>_planning_group</strong> – Name of the planning group by the ur5 arm</li>
+<li><strong>_commander</strong> – initialized moveit_commander object</li>
+<li><strong>_robot</strong> – moveit_commander.RobotCommander object to get the group names and the current state of the ur5 arm</li>
+<li><strong>_scene</strong> – moveit_commander.PlanningSceneInterface object to get the Rviz scene of the arm</li>
+<li><strong>_group</strong> – moveit_commander.MoveGroupCommander object to move the ur5 arm</li>
+<li><strong>_display_trajectory_publisher</strong> – Publisher handle to publish to /ur5_1/move_group/display_planned_path</li>
+<li><strong>_exectute_trajectory_client</strong> – Simple Action Client object</li>
+<li><strong>_planning_frame</strong> – gets the planning frame of the ur5 arm</li>
+<li><strong>_eef_link</strong> – gets the end effector link of the ur5 arm</li>
+<li><strong>_group_names</strong> – gets the group names of the ur5 arm</li>
+<li><strong>_box_name</strong> – gets the name of the box to be added or removed from the Rviz scene</li>
+<li><strong>order_status</strong> – Publisher handle to publish Dispatch in rostopic “/order_status” once a package is placed on the conveyor belt</li>
+<li><strong>order_shipping</strong> – Publisher handle to publish the colour and id of the package placed on the conveyor belt</li>
+<li><strong>_computed_plan</strong> – Stores computed trajectory by planner</li>
+<li><strong>_pkg_path</strong> – Stores the path of pkg_task5</li>
+<li><strong>_file_path</strong> – Stores the path of the folder which contains the saved yaml trajectory files</li>
+<li><strong>_curr_state</strong> – Gets the current state of the robot</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="ur5_1_controller.Actuator.add_box">
+<code class="descname">add_box</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>z</em>, <em>type</em>, <em>timeout=4</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ur5_1_controller.html#Actuator.add_box"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ur5_1_controller.Actuator.add_box" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a box at x, y, z coordinate in the Rviz Scene</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> – The X-coordinate where the box is to be added</li>
+<li><strong>y</strong> – The Y-coordinate where the box is to be added</li>
+<li><strong>z</strong> – The Z-coordinate where the box is to be added</li>
+<li><strong>type</strong> – The Name the box is given in the Rviz scene</li>
+<li><strong>timeout</strong> – No. Of seconds given to check if the Rviz scene has updated or not</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A Boolean value indicating the success of the box being added to the Rviz Scene</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">boolean</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ur5_1_controller.Actuator.arm_command">
+<code class="descname">arm_command</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ur5_1_controller.html#Actuator.arm_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ur5_1_controller.Actuator.arm_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a tuple which contains all the orders and sorts them according to the given high priority to low priority</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>r_name</strong> – The name of the robot whose vacuum gripper service is accessed.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A Boolean value indicating that the Vacuum Gripper has been deactivated</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">boolean</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ur5_1_controller.Actuator.attach_box">
+<code class="descname">attach_box</code><span class="sig-paren">(</span><em>timeout=4</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ur5_1_controller.html#Actuator.attach_box"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ur5_1_controller.Actuator.attach_box" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes the End Effector grab the box</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>timeout</strong> – No. Of seconds given to check if the Rviz scene has updated or not</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A Boolean value indicating the success of the End Effector grabbing the box</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">boolean</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ur5_1_controller.Actuator.attachgripper">
+<code class="descname">attachgripper</code><span class="sig-paren">(</span><em>r_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ur5_1_controller.html#Actuator.attachgripper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ur5_1_controller.Actuator.attachgripper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turns on i.e Activates the End Effector(Vacuum Gripper) by accessing it’s Service</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>r_name</strong> – The name of the robot whose vacuum gripper service is accessed.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A Boolean value indicating that the Vacuum Gripper has been activated</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">boolean</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ur5_1_controller.Actuator.detach_box">
+<code class="descname">detach_box</code><span class="sig-paren">(</span><em>timeout=4</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ur5_1_controller.html#Actuator.detach_box"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ur5_1_controller.Actuator.detach_box" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes the End Effector detach the box</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>timeout</strong> – No. Of seconds given to check if the Rviz scene has updated or not</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A Boolean value indicating the success of the End Effector detaching the box</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">boolean</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ur5_1_controller.Actuator.dettachgripper">
+<code class="descname">dettachgripper</code><span class="sig-paren">(</span><em>r_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ur5_1_controller.html#Actuator.dettachgripper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ur5_1_controller.Actuator.dettachgripper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turns off i.e deactivates the End Effector(Vacuum Gripper) by accessing it’s Service</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>r_name</strong> – The name of the robot whose vacuum gripper service is accessed.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A Boolean value indicating that the Vacuum Gripper has been deactivated</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">boolean</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ur5_1_controller.Actuator.go_to_predefined_pose">
+<code class="descname">go_to_predefined_pose</code><span class="sig-paren">(</span><em>arg_pose_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ur5_1_controller.html#Actuator.go_to_predefined_pose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ur5_1_controller.Actuator.go_to_predefined_pose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes the ur5 arm to a predefined pose saved.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>arg_pose_name</strong> – Gets the name of the pose</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ur5_1_controller.Actuator.moveit_hard_play_planned_path_from_file">
+<code class="descname">moveit_hard_play_planned_path_from_file</code><span class="sig-paren">(</span><em>arg_file_path</em>, <em>arg_file_name</em>, <em>arg_max_attempts</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ur5_1_controller.html#Actuator.moveit_hard_play_planned_path_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ur5_1_controller.Actuator.moveit_hard_play_planned_path_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plays the requested yaml saved trajectory by calling def moveit_play_planned_path_from_file and attempts it “arg_max_attempts” no. of times before aborting.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>arg_file_path</strong> – Gets the directory in which all the yaml saved trajectories are saved</li>
+<li><strong>arg_file_name</strong> – Gets the specific name of the yaml saved trajectory to be played</li>
+<li><strong>arg_max_attempts</strong> – Gets the number of times function should attempt at playing the yaml trajectory before aborting</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A Boolean True value</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">boolean</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ur5_1_controller.Actuator.moveit_play_planned_path_from_file">
+<code class="descname">moveit_play_planned_path_from_file</code><span class="sig-paren">(</span><em>arg_file_path</em>, <em>arg_file_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ur5_1_controller.html#Actuator.moveit_play_planned_path_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ur5_1_controller.Actuator.moveit_play_planned_path_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plays the requested yaml saved trajectory.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>arg_file_path</strong> – Gets the directory in which all the yaml saved trajectories are saved</li>
+<li><strong>arg_file_name</strong> – Gets the specific name of the yaml saved trajectory to be played</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A value which indicates the success of playing the requested yaml trajectory</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">boolean</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ur5_1_controller.Actuator.remove_box">
+<code class="descname">remove_box</code><span class="sig-paren">(</span><em>timeout=4</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ur5_1_controller.html#Actuator.remove_box"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ur5_1_controller.Actuator.remove_box" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the box from the Rviz scene</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>timeout</strong> – No. Of seconds given to check if the Rviz scene has updated or not</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A Boolean value indicating the success of the deletion of the box from the scene</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">boolean</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ur5_1_controller.Actuator.set_joint_angles">
+<code class="descname">set_joint_angles</code><span class="sig-paren">(</span><em>arg_list_joint_angles</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ur5_1_controller.html#Actuator.set_joint_angles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ur5_1_controller.Actuator.set_joint_angles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the joint angles of the ur5 arm to the given set of joint angles.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>arg_list_joint_angles</strong> – Gets the set of joint angles</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Return flag_plan:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body">A Boolean value which indicates the success at setting the given joint angles</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">boolean</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ur5_1_controller.Actuator.wait_for_state_update">
+<code class="descname">wait_for_state_update</code><span class="sig-paren">(</span><em>box_is_known=False</em>, <em>box_is_attached=False</em>, <em>timeout=4</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ur5_1_controller.html#Actuator.wait_for_state_update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ur5_1_controller.Actuator.wait_for_state_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks to see if Rviz has updated its scene in 4 different ways according to Arguments -</p>
+<ol class="arabic simple">
+<li>If the Box was added to the scene,</li>
+<li>If the End Effector has gripped the box</li>
+<li>If the End Effector has released the box</li>
+<li>If the Box was removed from the scene</li>
+</ol>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>box_is_known</strong> – True if there is supposed to be a box in the scene, False if there is supposed to be no box in the scene</li>
+<li><strong>box_is_attached</strong> – True if the End Effector is supposed to attach to the box, False if the End Effector is supposed to detach the box</li>
+<li><strong>timeout</strong> – No. Of seconds given to check if the Rviz scene has updated or not</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A Boolean value indicating the success of Rviz updating its scene according to the following parameters</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">boolean</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="ur5_1_controller.main">
+<code class="descclassname">ur5_1_controller.</code><code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ur5_1_controller.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ur5_1_controller.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instantiates and Actuator object of the ur5_1 arm and Controls the Ur5_1 arm. It picks up the packages from the shelf and places packages on the conveyor belt according to the order recieved.</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="ur5_2_controller.html" class="btn btn-neutral float-right" title="ur5_2_controller.py" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="convey.html" class="btn btn-neutral float-left" title="convey.py" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, vb_1844.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
