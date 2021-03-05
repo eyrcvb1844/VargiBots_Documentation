@@ -15,7 +15,7 @@
 import os
 import sys
 import sphinx_rtd_theme
-sys.path.insert(0, os.path.abspath('/VargiBots_Documentation/scripts/'))
+sys.path.insert(0, os.path.abspath(' ../scripts/'))
 
 
 # -- Project information -----------------------------------------------------
