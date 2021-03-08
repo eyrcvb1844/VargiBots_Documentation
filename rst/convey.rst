@@ -1,7 +1,7 @@
 convey.py
 =========
 
-.. automodule:: convey
+.. automodule:: scripts.convey
     :members:
     :undoc-members:
     :show-inheritance:
