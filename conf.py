@@ -16,7 +16,7 @@ import os
 import sys
 import sphinx_rtd_theme
 sys.path.insert(0, os.path.abspath('../../'))
-autodoc_mock_imports = ['rospy','actionlib','pkg_ros_iot_bridge','moveit_commander','cv2','moveit_msgs.msg','math','rosservice','copy','pyzbar','pkg_vb_sim.srv','importlib','pkg_vb_sim.msg','std_msgs.msg','threading','requests','datetime','pkg_ros_iot_bridge.msg','moveit_msgs','pyiot','std_msgs.msg','std_msgs']
+autodoc_mock_imports = ['rospy','actionlib','pkg_ros_iot_bridge','moveit_commander','cv2','moveit_msgs.msg','math','rosservice','copy','pyzbar','pkg_vb_sim.srv','importlib','pkg_vb_sim.msg','std_msgs.msg','threading','requests','datetime','pkg_ros_iot_bridge.msg','moveit_msgs','pyiot','std_msgs.msg','std_msgs','pkg_vb_sim','rospkg','yaml','time','std_srvs','std_srvs.srv']
 
 # -- Project information -----------------------------------------------------
 
